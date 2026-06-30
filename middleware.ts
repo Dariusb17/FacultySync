@@ -33,6 +33,8 @@ const PUBLIC_PREFIXES = [
   "/login",
   "/api/vapi",
   "/api/send-reminders",
+  "/api/cancel",
+  "/c",
   "/api/auth",
   "/auth/callback",
   "/accept-invite",
