@@ -29,6 +29,9 @@ UI language is Romanian throughout. Times are handled in `Europe/Bucharest`.
 - **Supabase**: `@supabase/supabase-js` + `@supabase/ssr` for cookie-aware auth.
 - **Twilio** (`twilio` v5) — note: in this codebase Twilio is mostly a stored config value;
   the actual message *sending* is fanned out to **n8n webhooks** (see §7).
+- **Vapi** — the voice agent for ClinicSync runs on Vapi and is configured in the Vapi dashboard,
+  **not in this repo** (so no voice/TwiML code appears here). Vapi handles telephony + STT + LLM +
+  TTS and reaches the backend through tool-call webhooks. FacultySync reuses this exact approach.
 - **Tailwind CSS v4**, Radix UI primitives, lucide-react icons, framer-motion, sonner (toasts),
   react-hook-form + zod, FullCalendar (dashboard calendar).
 - **nodemailer** (Gmail SMTP) for transactional email (invites etc.).
@@ -114,10 +117,10 @@ Single Edge middleware that runs on almost every path (matcher excludes static a
   `/api/send-reviews`, OAuth callback, `/doctor-onboarding`, privacy page, …).
 - Everything else: validates the Supabase user via `getUser()`; redirects to `/login` if absent.
 
-FacultySync analogue: the voice webhook routes (`/api/voice/*`) and the cron route must be public
-(Twilio and the scheduler call them unauthenticated) — but secure them with **Twilio signature
-validation** and the **cron secret** respectively, exactly as dental-saas secures its public routes
-with `api_key` / `x-cron-secret`.
+FacultySync analogue: the **Vapi tool webhooks** (`/api/vapi/*`) and the cron route must be public
+(Vapi and the scheduler call them unauthenticated at the network level) — but secure them with the
+**Vapi webhook secret** and the **cron secret** respectively, exactly as dental-saas secures its
+public routes with `api_key` / `x-cron-secret`.
 
 ---
 
@@ -178,12 +181,13 @@ Env vars: `N8N_WEBHOOK_BOOKING_CONFIRMATION`, `N8N_WEBHOOK_OWNER_ALERT`,
 `N8N_WEBHOOK_REMINDER_MORNING`, `N8N_WEBHOOK_REVIEW_REQUEST`, `N8N_WEBHOOK_BOOKING_APPROVED`,
 `N8N_WEBHOOK_BOOKING_DECLINED`.
 
-> **For FacultySync:** you can keep this exact indirection (a `lib/voice-notify.ts` that fans out
-> to n8n for SMS), OR call Twilio directly. For voice *calls* you'll respond with TwiML inline in
-> the webhook, and for outbound reminder SMS/calls you'll use the Twilio REST API (or n8n). Either
-> way the helper-module shape (`sendX(phone, {...})`, no-op if unconfigured, wrapped in try/catch)
-> is worth copying — every send site in dental-saas wraps the call in `try {} catch {}` so a
-> messaging failure never breaks the booking transaction.
+> **For FacultySync:** keep this exact indirection — a `lib/sms-notify.ts` that fans out to **n8n**
+> webhooks for outbound SMS (confirmations, reminders, owner alerts, feedback requests), identical
+> to dental-saas. The live *conversation* is handled entirely by **Vapi** (Vapi owns telephony +
+> STT + LLM + TTS), so there is no TwiML and no inline call-scripting to write — the app only
+> exposes the Vapi tool webhooks (§8 analogue) and these async n8n senders. Copy the helper-module
+> shape (`sendX(phone, {...})`, no-op if unconfigured, wrapped in try/catch) — every send site in
+> dental-saas wraps the call in `try {} catch {}` so a messaging failure never breaks the booking.
 
 Email (`lib/email.ts`) uses nodemailer over Gmail SMTP (`smtp.gmail.com:587` STARTTLS),
 `GMAIL_USER` / `GMAIL_APP_PASSWORD`. Used for Supabase invite emails etc.
@@ -214,10 +218,12 @@ This is the most important route to port. Sequence:
     is `google_connected`; store `gcal_event_id`.
 13. Return `{ success, appointment_id }` (201).
 
-**FacultySync analogue:** the voice agent's "confirm booking" step does steps 5–11 against
+**FacultySync analogue:** the **`POST /api/vapi/book`** tool webhook does steps 5–11 against
 `bookings` (resolve `meeting_type` duration from `meeting_types`, upsert `students` on
 `(office_id, student_id_number)`, conflict-check against `office_hours` + existing bookings,
-insert, send SMS confirmation). No Google Calendar needed unless you want it.
+insert, fire SMS confirmation via n8n). Vapi extracts the args from the call and invokes this
+endpoint; `office_id` is resolved from the dialed number in the Vapi payload. The `api_key` check
+becomes the **Vapi webhook-secret** check. No Google Calendar needed unless you want it.
 
 ---
 
@@ -337,9 +343,11 @@ app/
 lib/    components/    middleware.ts
 ```
 
-FacultySync mirrors this, swapping `book/[clinicId]` for the **voice webhook routes**
-(`api/voice/*`) since students arrive by phone, not a web form. The dashboard, admin, onboarding,
-cron, and helper layers map across almost unchanged.
+FacultySync mirrors this, swapping the public `book/[clinicId]` web form for **Vapi tool webhooks**
+(`api/vapi/check-availability`, `api/vapi/book`, `api/vapi/cancel`, `api/vapi/faq`) — students
+arrive by phone and Vapi calls these endpoints during the conversation. The dashboard, admin,
+onboarding, cron, and helper layers map across almost unchanged. (An optional `book/[officeId]`
+web booking page can still be added later as a non-voice fallback.)
 
 ---
 
