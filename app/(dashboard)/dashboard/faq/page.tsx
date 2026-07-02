@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { HelpIcon, SparkIcon } from "@/components/icons";
 
 type Faq = {
   id: string;
@@ -62,15 +63,20 @@ export default function FaqPage() {
     load();
   }
 
+  const input =
+    "rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20";
+
   return (
-    <section className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-brand-dark">Întrebări frecvente</h1>
-        <p className="text-sm text-slate-500">
-          Agentul vocal răspunde studenților folosind aceste răspunsuri.
-          Cuvintele cheie (separate prin virgulă) sunt comparate cu întrebarea.
+    <section className="flex flex-col gap-8">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          Întrebări frecvente
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Agentul vocal citește aceste răspunsuri studenților. Cuvintele cheie
+          (separate prin virgulă) sunt comparate cu întrebarea rostită.
         </p>
-      </div>
+      </header>
 
       <div className="flex flex-col gap-3">
         {faqs.map((f) => {
@@ -79,8 +85,12 @@ export default function FaqPage() {
           return (
             <div
               key={f.id}
-              className="flex flex-col gap-2 rounded-lg border border-slate-200 bg-white p-4"
+              className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
             >
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-brand/70">
+                <HelpIcon className="h-4 w-4" />
+                Cuvinte cheie
+              </div>
               <input
                 value={e.question_keywords}
                 onChange={(ev) =>
@@ -89,8 +99,11 @@ export default function FaqPage() {
                     [f.id]: { ...e, question_keywords: ev.target.value },
                   }))
                 }
-                className="rounded border border-slate-300 px-2 py-1.5 text-sm font-medium"
+                className={`${input} font-medium`}
               />
+              <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Răspuns
+              </label>
               <textarea
                 value={e.answer}
                 onChange={(ev) =>
@@ -100,54 +113,61 @@ export default function FaqPage() {
                   }))
                 }
                 rows={2}
-                className="rounded border border-slate-300 px-2 py-1.5 text-sm"
+                className={input}
               />
-              <div className="flex gap-3">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => save(e)}
                   disabled={!dirty || busy}
-                  className="rounded bg-brand px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-dark disabled:opacity-50"
+                  className="rounded-lg bg-brand px-3.5 py-2 text-xs font-medium text-white transition hover:bg-brand-dark disabled:opacity-40"
                 >
                   Salvează
                 </button>
                 <button
                   onClick={() => remove(f.id)}
-                  className="text-xs text-red-600 hover:underline"
+                  className="rounded-lg px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50"
                 >
                   Șterge
                 </button>
+                {dirty && (
+                  <span className="text-xs text-amber-600">Modificări nesalvate</span>
+                )}
               </div>
             </div>
           );
         })}
       </div>
 
+      {/* Add card */}
       <form
         onSubmit={add}
-        className="flex flex-col gap-2 rounded-lg border border-dashed border-slate-300 bg-white p-4"
+        className="flex flex-col gap-3 rounded-2xl border-2 border-dashed border-slate-300 bg-white p-5"
       >
-        <p className="text-sm font-medium text-slate-700">Adaugă întrebare</p>
+        <p className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <SparkIcon className="h-4 w-4 text-brand" />
+          Adaugă o întrebare
+        </p>
         <input
           placeholder="Cuvinte cheie: examen, data examen, sesiune"
           value={newKw}
           onChange={(e) => setNewKw(e.target.value)}
           required
-          className="rounded border border-slate-300 px-2 py-1.5 text-sm"
+          className={input}
         />
         <textarea
-          placeholder="Răspunsul pe care îl va spune agentul"
+          placeholder="Răspunsul pe care îl va rosti agentul"
           value={newAns}
           onChange={(e) => setNewAns(e.target.value)}
           required
           rows={2}
-          className="rounded border border-slate-300 px-2 py-1.5 text-sm"
+          className={input}
         />
         <button
           type="submit"
           disabled={busy}
-          className="self-start rounded bg-brand px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-dark disabled:opacity-50"
+          className="self-start rounded-lg bg-brand px-4 py-2 text-xs font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
         >
-          Adaugă
+          Adaugă întrebarea
         </button>
       </form>
     </section>

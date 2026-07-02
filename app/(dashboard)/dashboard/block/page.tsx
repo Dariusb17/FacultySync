@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BanIcon } from "@/components/icons";
 
 type Block = {
   id: string;
@@ -63,102 +64,91 @@ export default function BlockSlotsPage() {
       timeStyle: "short",
     }).format(new Date(iso));
 
-  return (
-    <section className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-brand-dark">Blocare intervale</h1>
-        <p className="text-sm text-slate-500">
-          Intervalele blocate sunt indisponibile pentru programări (ex. ședințe,
-          concediu).
-        </p>
-      </div>
+  const input =
+    "rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20";
 
+  return (
+    <section className="flex flex-col gap-8">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          Blocare intervale
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Marcați perioadele indisponibile (ședințe, concediu). Agentul vocal nu
+          va oferi aceste intervale studenților.
+        </p>
+      </header>
+
+      {/* Form card */}
       <form
         onSubmit={add}
-        className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-5"
+        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
       >
-        <label className="flex flex-col gap-1 text-xs text-slate-600">
-          Data
-          <input
-            type="date"
-            required
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="rounded border border-slate-300 px-2 py-1.5 text-sm"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-slate-600">
-          De la
-          <input
-            type="time"
-            required
-            value={start}
-            onChange={(e) => setStart(e.target.value)}
-            className="rounded border border-slate-300 px-2 py-1.5 text-sm"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-slate-600">
-          Până la
-          <input
-            type="time"
-            required
-            value={end}
-            onChange={(e) => setEnd(e.target.value)}
-            className="rounded border border-slate-300 px-2 py-1.5 text-sm"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-slate-600">
-          Motiv (opțional)
-          <input
-            type="text"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            className="rounded border border-slate-300 px-2 py-1.5 text-sm"
-          />
-        </label>
-        <button
-          type="submit"
-          disabled={loading}
-          className="self-end rounded bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-60"
-        >
-          {loading ? "…" : "Blochează"}
-        </button>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-slate-600">
+            Data
+            <input type="date" required value={date} onChange={(e) => setDate(e.target.value)} className={input} />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-slate-600">
+            De la
+            <input type="time" required value={start} onChange={(e) => setStart(e.target.value)} className={input} />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-slate-600">
+            Până la
+            <input type="time" required value={end} onChange={(e) => setEnd(e.target.value)} className={input} />
+          </label>
+          <label className="flex flex-col gap-1.5 text-xs font-medium text-slate-600">
+            Motiv (opțional)
+            <input type="text" placeholder="ex. ședință catedră" value={reason} onChange={(e) => setReason(e.target.value)} className={input} />
+          </label>
+        </div>
+        <div className="mt-4 flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-card transition hover:bg-brand-dark disabled:opacity-60"
+          >
+            <BanIcon className="h-4 w-4" />
+            {loading ? "Se blochează…" : "Blochează intervalul"}
+          </button>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+        </div>
       </form>
-      {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      {/* List */}
+      <div>
+        <h2 className="mb-3 text-sm font-semibold text-slate-700">
+          Intervale blocate
+        </h2>
         {blocks.length === 0 ? (
-          <p className="p-6 text-center text-sm text-slate-500">
-            Niciun interval blocat.
-          </p>
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-sm text-slate-500">
+            Niciun interval blocat momentan.
+          </div>
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-100 text-slate-600">
-              <tr>
-                <th className="px-4 py-2 font-medium">Început</th>
-                <th className="px-4 py-2 font-medium">Sfârșit</th>
-                <th className="px-4 py-2 font-medium">Motiv</th>
-                <th className="px-4 py-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {blocks.map((b) => (
-                <tr key={b.id} className="border-t border-slate-100">
-                  <td className="px-4 py-2">{fmt(b.start_time)}</td>
-                  <td className="px-4 py-2">{fmt(b.end_time)}</td>
-                  <td className="px-4 py-2 text-slate-500">{b.reason ?? "—"}</td>
-                  <td className="px-4 py-2 text-right">
-                    <button
-                      onClick={() => remove(b.id)}
-                      className="text-xs text-red-600 hover:underline"
-                    >
-                      Șterge
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="flex flex-col gap-2.5">
+            {blocks.map((b) => (
+              <div
+                key={b.id}
+                className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-card"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+                  <BanIcon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-slate-800">
+                    {fmt(b.start_time)} — {fmt(b.end_time)}
+                  </p>
+                  <p className="text-xs text-slate-500">{b.reason ?? "Indisponibil"}</p>
+                </div>
+                <button
+                  onClick={() => remove(b.id)}
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50"
+                >
+                  Șterge
+                </button>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </section>

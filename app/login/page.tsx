@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { SparkIcon } from "@/components/icons";
 
 export default function LoginPage() {
   return (
@@ -35,39 +36,57 @@ function LoginForm() {
     router.refresh();
   }
 
+  const input =
+    "rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20";
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6">
-      <h1 className="text-2xl font-bold text-brand-dark">Autentificare</h1>
-      <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
-          Email
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="rounded border border-slate-300 px-3 py-2"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Parolă
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="rounded border border-slate-300 px-3 py-2"
-          />
-        </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-lg bg-brand px-4 py-2.5 font-medium text-white hover:bg-brand-dark disabled:opacity-60"
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-brand-light to-transparent" />
+      <div className="relative w-full max-w-sm">
+        <div className="mb-6 flex flex-col items-center gap-2 text-center">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand text-white shadow-lift">
+            <SparkIcon className="h-6 w-6" />
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-brand-ink">
+            FacultySync
+          </h1>
+          <p className="text-sm text-slate-500">Panoul profesorului</p>
+        </div>
+
+        <form
+          onSubmit={onSubmit}
+          className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-card"
         >
-          {loading ? "Se conectează…" : "Conectare"}
-        </button>
-      </form>
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-700">
+            Email
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={input}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-700">
+            Parolă
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={input}
+            />
+          </label>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-1 rounded-lg bg-brand px-4 py-2.5 font-medium text-white shadow-card transition hover:bg-brand-dark disabled:opacity-60"
+          >
+            {loading ? "Se conectează…" : "Conectare"}
+          </button>
+        </form>
+      </div>
     </main>
   );
 }
