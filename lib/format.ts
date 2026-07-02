@@ -116,6 +116,18 @@ export function bucharestDateStr(at: Date = new Date()): string {
   return parts; // en-CA yields YYYY-MM-DD
 }
 
+/** Natural Romanian date from a YYYY-MM-DD string, e.g. "luni, 6 iulie". */
+export function formatDateRo(dateStr: string): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d, 12));
+  return new Intl.DateTimeFormat(LOCALE, {
+    timeZone: TIMEZONE,
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(dt);
+}
+
 /** Full human time, ro-RO / Europe/Bucharest. e.g. "luni, 1 iulie 2026, 14:30". */
 export function formatDateTimeRo(at: Date): string {
   return new Intl.DateTimeFormat(LOCALE, {

@@ -7,6 +7,7 @@ import {
   vapiResult,
 } from "@/lib/vapi-auth";
 import { getAvailability } from "@/lib/availability";
+import { formatDateRo } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -49,10 +50,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const dateRo = formatDateRo(date);
+
   if (avail.free.length === 0) {
     return vapiResult(
       parsed.toolCallId,
-      `Pentru ${date} nu mai sunt intervale libere. Doriți să încercăm o altă zi?`,
+      `Pentru ${dateRo} nu mai sunt intervale libere. Doriți să încercăm o altă zi?`,
       { free: [], date }
     );
   }
@@ -61,7 +64,7 @@ export async function POST(req: NextRequest) {
   const spoken = offered.join(", ");
   return vapiResult(
     parsed.toolCallId,
-    `Pentru ${date} sunt disponibile orele: ${spoken}. La ce oră doriți să programez?`,
+    `Pentru ${dateRo} sunt disponibile orele: ${spoken}. La ce oră doriți să programez?`,
     { free: avail.free, durationMinutes: avail.durationMinutes, date }
   );
 }
