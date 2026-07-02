@@ -24,12 +24,22 @@ function timingSafeEqual(a: string, b: string): boolean {
   return crypto.timingSafeEqual(ab, bb);
 }
 
-/** Verify the Vapi shared-secret header. Returns true when valid. */
+/**
+ * Verify the Vapi shared secret. Accepts it either as the `x-vapi-secret`
+ * header (Vapi's server-secret mechanism) OR as a `?secret=` query parameter on
+ * the tool URL. The query form is bulletproof — the URL is always sent exactly
+ * as configured — so it works regardless of how the Vapi dashboard wires the
+ * server secret.
+ */
 export function verifyVapiSecret(req: NextRequest): boolean {
   const expected = process.env.VAPI_WEBHOOK_SECRET;
   if (!expected) return false; // fail closed if unconfigured
-  const got = req.headers.get(SECRET_HEADER) ?? "";
-  return timingSafeEqual(got, expected);
+  const headerSecret = req.headers.get(SECRET_HEADER) ?? "";
+  const querySecret = req.nextUrl.searchParams.get("secret") ?? "";
+  return (
+    timingSafeEqual(headerSecret, expected) ||
+    timingSafeEqual(querySecret, expected)
+  );
 }
 
 export type ParsedVapiTool = {
