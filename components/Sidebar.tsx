@@ -1,17 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
+  ListIcon,
   CalendarIcon,
   BanIcon,
   HelpIcon,
   PhoneIcon,
   SparkIcon,
+  LogoutIcon,
 } from "./icons";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 const NAV = [
-  { href: "/dashboard", label: "Programări", icon: CalendarIcon },
+  { href: "/dashboard", label: "Programări", icon: ListIcon },
+  { href: "/dashboard/calendar", label: "Calendar", icon: CalendarIcon },
   { href: "/dashboard/block", label: "Blocare intervale", icon: BanIcon },
   { href: "/dashboard/faq", label: "Întrebări frecvente", icon: HelpIcon },
 ];
@@ -26,6 +30,14 @@ export default function Sidebar({
   officePhone: string | null;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function logout() {
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <aside className="flex flex-col gap-6 border-b border-slate-200 bg-white px-4 py-5 md:min-h-screen md:w-72 md:border-b-0 md:border-r md:px-5 md:py-7">
@@ -74,23 +86,32 @@ export default function Sidebar({
         })}
       </nav>
 
-      {/* Agent status */}
-      <div className="mt-auto hidden rounded-xl border border-slate-200 px-3.5 py-3 md:block">
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse-dot" />
-          <span className="text-xs font-medium text-slate-700">
-            Agent vocal activ
-          </span>
-        </div>
-        {officePhone && (
-          <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
-            <PhoneIcon className="h-3.5 w-3.5" />
-            {officePhone}
+      {/* Footer: agent status + logout */}
+      <div className="mt-auto flex flex-col gap-3">
+        <div className="hidden rounded-xl border border-slate-200 px-3.5 py-3 md:block">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse-dot" />
+            <span className="text-xs font-medium text-slate-700">
+              Agent vocal activ
+            </span>
           </div>
-        )}
-        <p className="mt-2 text-[11px] leading-snug text-slate-400">
-          Studenții sunt preluați automat, non-stop.
-        </p>
+          {officePhone && (
+            <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
+              <PhoneIcon className="h-3.5 w-3.5" />
+              {officePhone}
+            </div>
+          )}
+          <p className="mt-2 text-[11px] leading-snug text-slate-400">
+            Studenții sunt preluați automat, non-stop.
+          </p>
+        </div>
+        <button
+          onClick={logout}
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+        >
+          <LogoutIcon className="h-[18px] w-[18px]" />
+          Deconectare
+        </button>
       </div>
     </aside>
   );

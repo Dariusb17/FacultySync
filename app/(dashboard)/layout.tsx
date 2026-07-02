@@ -27,7 +27,7 @@ export default async function DashboardLayout({
         officePhone={office?.twilio_number ?? office?.office_phone ?? null}
       />
       <main className="flex-1 px-5 py-8 md:px-10 md:py-10">
-        <div className="mx-auto max-w-4xl">{children}</div>
+        <div className="mx-auto max-w-5xl">{children}</div>
       </main>
     </div>
   );
