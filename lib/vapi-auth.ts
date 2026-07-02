@@ -124,6 +124,18 @@ export async function resolveOffice(
       .maybeSingle();
     if (data) return data as Office;
   }
+  // Single-office deployment fallback: if DEFAULT_OFFICE_ID is set and nothing
+  // else resolved the tenant, use it. Lets one assistant work without injecting
+  // office_id via metadata or matching a dialed number (handy for web-call demos).
+  const fallback = process.env.DEFAULT_OFFICE_ID;
+  if (fallback) {
+    const { data } = await adminSupabase
+      .from("offices")
+      .select("*")
+      .eq("id", fallback)
+      .maybeSingle();
+    if (data) return data as Office;
+  }
   return null;
 }
 
