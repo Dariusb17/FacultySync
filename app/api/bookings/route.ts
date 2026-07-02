@@ -15,7 +15,7 @@ export async function GET() {
   const { data } = await adminSupabase
     .from("bookings")
     .select(
-      "id, student_name, student_id_number, meeting_type, topic, slot_time, end_time, duration_minutes, student_phone"
+      "id, student_name, faculty, meeting_type, topic, slot_time, end_time, duration_minutes"
     )
     .eq("office_id", ctx.profile.office_id)
     .eq("cancelled", false)

@@ -25,7 +25,8 @@ export type Booking = {
   id: string;
   office_id: string;
   student_name: string;
-  student_id_number: string;
+  faculty: string | null;
+  student_id_number: string | null;
   student_phone: string | null;
   meeting_type: string;
   topic: string | null;

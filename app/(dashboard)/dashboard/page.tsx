@@ -7,7 +7,6 @@ import {
   CalendarTodayIcon,
   UsersIcon,
   ClockIcon,
-  PhoneIcon,
 } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +41,7 @@ export default async function DashboardPage() {
   const { data: rows } = await adminSupabase
     .from("bookings")
     .select(
-      "id, student_name, student_id_number, meeting_type, topic, slot_time, duration_minutes, student_phone"
+      "id, student_name, faculty, meeting_type, topic, slot_time, duration_minutes"
     )
     .eq("office_id", officeId)
     .eq("cancelled", false)
@@ -172,8 +171,7 @@ export default async function DashboardPage() {
                         </span>
                       </div>
                       <p className="mt-0.5 truncate text-sm text-slate-500">
-                        <span className="text-slate-400">Matricol</span>{" "}
-                        {b.student_id_number}
+                        {b.faculty ?? "—"}
                         {b.topic ? (
                           <>
                             {" · "}
@@ -182,14 +180,6 @@ export default async function DashboardPage() {
                         ) : null}
                       </p>
                     </div>
-
-                    {/* Phone */}
-                    {b.student_phone && (
-                      <div className="hidden items-center gap-1.5 text-xs text-slate-400 sm:flex">
-                        <PhoneIcon className="h-3.5 w-3.5" />
-                        {b.student_phone}
-                      </div>
-                    )}
                   </article>
                 ))}
               </div>

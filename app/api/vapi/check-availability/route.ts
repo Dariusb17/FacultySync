@@ -7,7 +7,7 @@ import {
   vapiResult,
 } from "@/lib/vapi-auth";
 import { getAvailability } from "@/lib/availability";
-import { formatDateRo } from "@/lib/format";
+import { formatDateRo, spokenProfessorName } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +45,9 @@ export async function POST(req: NextRequest) {
   if (avail.dayOff) {
     return vapiResult(
       parsed.toolCallId,
-      `În acea zi nu sunt ore de birou la ${office.professor_name}. Doriți o altă zi?`,
+      `În acea zi nu sunt ore de birou la profesorul ${spokenProfessorName(
+        office.professor_name
+      )}. Doriți o altă zi?`,
       { dayOff: true, date }
     );
   }

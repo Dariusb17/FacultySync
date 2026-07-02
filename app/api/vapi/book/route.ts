@@ -8,31 +8,24 @@ import {
   vapiResult,
 } from "@/lib/vapi-auth";
 import { adminSupabase } from "@/lib/supabase";
-import {
-  getAvailability,
-  resolveMeetingDuration,
-} from "@/lib/availability";
+import { getAvailability, resolveMeetingDuration } from "@/lib/availability";
 import {
   bucharestLocalToUtc,
   bucharestHHMM,
   formatDateTimeRo,
-  normalizePhone,
+  spokenProfessorName,
 } from "@/lib/format";
-import {
-  sendBookingConfirmation,
-  sendOwnerNewBookingAlert,
-} from "@/lib/sms-notify";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Vapi tool: book.
- * Args: { student_name, student_id, topic?, meeting_type?, student_phone?,
+ * Args: { student_name, faculty, topic?, meeting_type?,
  *         slot (ISO) | date ("YYYY-MM-DD") + time ("HH:MM") }.
  *
- * Mirrors dental-saas POST /api/booking steps 5-11 against `bookings`:
- * resolve duration from meeting_types, upsert student on
- * (office_id, student_id_number), conflict-check, insert, fire SMS via n8n.
+ * Resolves duration from meeting_types, validates against working hours +
+ * existing bookings/blocks, and inserts the booking. No matricol number and no
+ * phone/SMS (we don't send SMS in this deployment).
  */
 export async function POST(req: NextRequest) {
   if (!verifyVapiSecret(req)) return vapiUnauthorized();
@@ -49,18 +42,15 @@ export async function POST(req: NextRequest) {
 
   const a = parsed.args;
   const studentName: string | undefined = a.student_name ?? a.studentName;
-  const studentIdNumber: string | undefined = a.student_id ?? a.studentId ?? a.student_id_number;
+  const faculty: string | null = a.faculty ?? a.facultate ?? null;
   const topic: string | null = a.topic ?? null;
   const meetingType: string =
     a.meeting_type ?? a.meetingType ?? "Consultație ore de birou";
-  const studentPhone: string | null = a.student_phone
-    ? normalizePhone(a.student_phone)
-    : null;
 
-  if (!studentName || !studentIdNumber) {
+  if (!studentName || !faculty) {
     return vapiResult(
       parsed.toolCallId,
-      "Am nevoie de numele și numărul dumneavoastră de matricol pentru a face programarea."
+      "Am nevoie de numele complet și de facultatea de la care sunteți pentru a face programarea."
     );
   }
 
@@ -100,22 +90,6 @@ export async function POST(req: NextRequest) {
   }
 
   const endTime = new Date(slotStart.getTime() + durationMinutes * 60_000);
-
-  // Upsert student on (office_id, student_id_number).
-  const { data: student } = await adminSupabase
-    .from("students")
-    .upsert(
-      {
-        office_id: office.id,
-        student_id_number: studentIdNumber,
-        full_name: studentName,
-        phone: studentPhone,
-      },
-      { onConflict: "office_id,student_id_number" }
-    )
-    .select("id")
-    .maybeSingle();
-
   const cancelToken = crypto.randomBytes(16).toString("hex");
 
   const { data: booking, error } = await adminSupabase
@@ -123,14 +97,12 @@ export async function POST(req: NextRequest) {
     .insert({
       office_id: office.id,
       student_name: studentName,
-      student_id_number: studentIdNumber,
-      student_phone: studentPhone,
+      faculty,
       meeting_type: meetingType,
       topic,
       slot_time: slotStart.toISOString(),
       end_time: endTime.toISOString(),
       duration_minutes: durationMinutes,
-      student_id: student?.id ?? null,
       source: "voice",
       cancel_token: cancelToken,
     })
@@ -147,42 +119,12 @@ export async function POST(req: NextRequest) {
 
   const formattedTime = formatDateTimeRo(slotStart);
 
-  // Best-effort SMS confirmations (never fail the booking).
-  if (studentPhone) {
-    try {
-      await sendBookingConfirmation(studentPhone, {
-        studentName,
-        officeName: office.name,
-        professorName: office.professor_name,
-        meetingType,
-        formattedTime,
-      });
-    } catch (e) {
-      console.error("[book] confirmation SMS failed:", e);
-    }
-  }
-  if (office.office_phone) {
-    try {
-      await sendOwnerNewBookingAlert(office.office_phone, {
-        studentName,
-        studentIdNumber,
-        officeName: office.name,
-        professorName: office.professor_name,
-        meetingType,
-        topic: topic ?? undefined,
-        formattedTime,
-      });
-    } catch (e) {
-      console.error("[book] owner alert failed:", e);
-    }
-  }
-
-  // Confirmation must include office/professor name, student name, type, slot time.
+  // Confirmation: office/professor name, student name, faculty, type, slot time.
   return vapiResult(
     parsed.toolCallId,
-    `Gata! Am programat-o pe ${studentName} la ${office.professor_name}, ` +
-      `${meetingType}, pe ${formattedTime}. Veți primi un SMS de confirmare. ` +
-      `Mai pot face altceva pentru dumneavoastră?`,
+    `Gata! Am programat-o pe ${studentName}, de la ${faculty}, la profesorul ${spokenProfessorName(
+      office.professor_name
+    )}, ${meetingType}, pe ${formattedTime}. Mai pot face altceva pentru dumneavoastră?`,
     { booking_id: booking.id, slot_time: slotStart.toISOString() }
   );
 }

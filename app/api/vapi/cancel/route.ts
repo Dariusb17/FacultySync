@@ -7,16 +7,14 @@ import {
   vapiResult,
 } from "@/lib/vapi-auth";
 import { adminSupabase } from "@/lib/supabase";
-import { formatDateTimeRo } from "@/lib/format";
-import { sendCancellationNotice } from "@/lib/sms-notify";
+import { formatDateTimeRo, spokenProfessorName } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Vapi tool: cancel.
- * Args: { student_id }. Identifies the student by matricol number and cancels
- * their soonest upcoming non-cancelled booking (freeing the slot).
- * Mirrors dental-saas cancellation (here keyed by student id, not opaque token).
+ * Args: { student_name }. Identifies the student by name and cancels their
+ * soonest upcoming non-cancelled booking (freeing the slot).
  */
 export async function POST(req: NextRequest) {
   if (!verifyVapiSecret(req)) return vapiUnauthorized();
@@ -31,22 +29,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const studentIdNumber: string | undefined =
-    parsed.args.student_id ?? parsed.args.studentId ?? parsed.args.student_id_number;
-  if (!studentIdNumber) {
+  const studentName: string | undefined =
+    parsed.args.student_name ?? parsed.args.studentName ?? parsed.args.name;
+  if (!studentName) {
     return vapiResult(
       parsed.toolCallId,
-      "Spuneți-mi vă rog numărul dumneavoastră de matricol ca să găsesc programarea."
+      "Spuneți-mi vă rog numele complet ca să găsesc programarea."
     );
   }
 
-  // Find the soonest upcoming, non-cancelled booking for this student.
+  // Find the soonest upcoming, non-cancelled booking for this student (by name).
   const nowIso = new Date().toISOString();
   const { data: bookings } = await adminSupabase
     .from("bookings")
     .select("*")
     .eq("office_id", office.id)
-    .eq("student_id_number", studentIdNumber)
+    .ilike("student_name", studentName.trim())
     .eq("cancelled", false)
     .gte("slot_time", nowIso)
     .order("slot_time", { ascending: true })
@@ -56,7 +54,7 @@ export async function POST(req: NextRequest) {
   if (!booking) {
     return vapiResult(
       parsed.toolCallId,
-      "Nu am găsit nicio programare viitoare pe numărul dumneavoastră de matricol."
+      `Nu am găsit nicio programare viitoare pe numele ${studentName}.`
     );
   }
 
@@ -76,25 +74,12 @@ export async function POST(req: NextRequest) {
 
   const formattedTime = formatDateTimeRo(new Date(booking.slot_time));
 
-  if (booking.student_phone) {
-    try {
-      await sendCancellationNotice(booking.student_phone, {
-        studentName: booking.student_name,
-        officeName: office.name,
-        professorName: office.professor_name,
-        meetingType: booking.meeting_type,
-        formattedTime,
-      });
-    } catch (e) {
-      console.error("[cancel] notice SMS failed:", e);
-    }
-  }
-
   return vapiResult(
     parsed.toolCallId,
     `Am anulat programarea pentru ${booking.student_name} din ${formattedTime}, ` +
-      `${booking.meeting_type} la ${office.professor_name}. Intervalul este acum liber. ` +
-      `Mai pot face altceva?`,
+      `${booking.meeting_type} la profesorul ${spokenProfessorName(
+        office.professor_name
+      )}. Intervalul este acum liber. Mai pot face altceva?`,
     { cancelled_booking_id: booking.id }
   );
 }

@@ -116,6 +116,19 @@ export function bucharestDateStr(at: Date = new Date()): string {
   return parts; // en-CA yields YYYY-MM-DD
 }
 
+/**
+ * Spoken form of a professor name for TTS: strips academic-title tokens (those
+ * containing a period, e.g. "Prof.dr.ing.") so the voice agent says just the
+ * name — "Mircea Giurgiu" — while the dashboard can still show the full title.
+ */
+export function spokenProfessorName(name: string): string {
+  const rest = name
+    .trim()
+    .split(/\s+/)
+    .filter((t) => !t.includes("."));
+  return rest.join(" ") || name.trim();
+}
+
 /** Natural Romanian date from a YYYY-MM-DD string, e.g. "luni, 6 iulie". */
 export function formatDateRo(dateStr: string): string {
   const [y, m, d] = dateStr.split("-").map(Number);

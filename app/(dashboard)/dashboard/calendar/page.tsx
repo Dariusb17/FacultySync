@@ -5,19 +5,17 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   CalendarIcon,
-  PhoneIcon,
 } from "@/components/icons";
 import { initials, avatarColor, badgeColor } from "@/lib/ui";
 
 type Booking = {
   id: string;
   student_name: string;
-  student_id_number: string;
+  faculty: string | null;
   meeting_type: string;
   topic: string | null;
   slot_time: string;
   duration_minutes: number;
-  student_phone: string | null;
 };
 
 const TZ = "Europe/Bucharest";
@@ -284,17 +282,10 @@ export default function CalendarPage() {
                     </span>
                   </div>
                   <p className="mt-0.5 truncate text-sm text-slate-500">
-                    <span className="text-slate-400">Matricol</span>{" "}
-                    {b.student_id_number}
+                    {b.faculty ?? "—"}
                     {b.topic ? ` · ${b.topic}` : ""}
                   </p>
                 </div>
-                {b.student_phone && (
-                  <div className="hidden items-center gap-1.5 text-xs text-slate-400 sm:flex">
-                    <PhoneIcon className="h-3.5 w-3.5" />
-                    {b.student_phone}
-                  </div>
-                )}
               </article>
             ))}
           </div>
