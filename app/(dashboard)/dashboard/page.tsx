@@ -70,9 +70,9 @@ export default async function DashboardPage() {
   }
 
   const stats = [
-    { label: "Programări active", value: bookings.length, Icon: UsersIcon, tint: "text-indigo-600 bg-indigo-50" },
-    { label: "Astăzi", value: todayCount, Icon: CalendarTodayIcon, tint: "text-emerald-600 bg-emerald-50" },
-    { label: "Următoarele 7 zile", value: weekCount, Icon: ClockIcon, tint: "text-amber-600 bg-amber-50" },
+    { label: "Programări active", value: bookings.length, Icon: UsersIcon, accent: "text-indigo-400" },
+    { label: "Astăzi", value: todayCount, Icon: CalendarTodayIcon, accent: "text-emerald-400" },
+    { label: "Următoarele 7 zile", value: weekCount, Icon: ClockIcon, accent: "text-amber-400" },
   ];
 
   return (
@@ -90,20 +90,20 @@ export default async function DashboardPage() {
 
       {/* Stat tiles */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {stats.map(({ label, value, Icon, tint }) => (
+        {stats.map(({ label, value, Icon, accent }) => (
           <div
             key={label}
-            className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
+            className="rounded-2xl border border-slate-200/70 bg-white p-5"
           >
-            <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${tint}`}>
-              <Icon className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold tabular-nums text-slate-900">
-                {value}
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                {label}
               </p>
-              <p className="text-xs font-medium text-slate-500">{label}</p>
+              <Icon className={`h-4 w-4 ${accent}`} />
             </div>
+            <p className="mt-3 text-3xl font-semibold tabular-nums tracking-tight text-slate-900">
+              {value}
+            </p>
           </div>
         ))}
       </div>
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
                 {list.map((b) => (
                   <article
                     key={b.id}
-                    className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-card transition hover:border-brand/40 hover:shadow-lift"
+                    className="flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-white p-4 transition hover:border-slate-300"
                   >
                     {/* Time block */}
                     <div className="flex w-16 shrink-0 flex-col items-center rounded-lg bg-slate-50 py-2 text-center">
