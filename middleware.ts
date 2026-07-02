@@ -64,6 +64,18 @@ export async function middleware(req: NextRequest) {
   if (isPublic(pathname)) return NextResponse.next();
 
   // Auth gate for everything else (dashboard, admin, dashboard APIs).
+  // Fail safe: without Supabase env we can't authenticate — send to login
+  // rather than throwing a 500.
+  const url = req.nextUrl.clone();
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    url.pathname = "/login";
+    url.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(url);
+  }
+
   const res = NextResponse.next();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -87,7 +99,6 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
