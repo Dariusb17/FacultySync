@@ -1,6 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
-  SparkIcon,
   CalendarIcon,
   BanIcon,
   HelpIcon,
@@ -16,7 +16,7 @@ const FEATURES = [
   {
     Icon: BanIcon,
     title: "Anulează",
-    body: "Studentul se identifică prin numărul de matricol, iar programarea este anulată, eliberând intervalul.",
+    body: "Studentul își spune numele, iar programarea este anulată, eliberând intervalul pentru altcineva.",
   },
   {
     Icon: HelpIcon,
@@ -35,11 +35,17 @@ export default function Home() {
         {/* Nav */}
         <header className="flex items-center justify-between py-6">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-lift">
-              <SparkIcon className="h-5 w-5" />
+            <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white shadow-card ring-1 ring-slate-200">
+              <Image
+                src="/logo.png"
+                alt="FacultyVoice"
+                width={34}
+                height={34}
+                className="h-[34px] w-[34px] object-contain"
+              />
             </div>
-            <span className="font-bold tracking-tight text-brand-ink">
-              FacultyVoice
+            <span className="font-bold tracking-tight text-slate-900">
+              Faculty<span className="text-brand">Voice</span>
             </span>
           </div>
           <Link
@@ -57,7 +63,10 @@ export default function Home() {
             Agent vocal · non-stop
           </span>
           <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            Un asistent vocal care preia telefonul pentru orele de birou
+            Un asistent vocal care preia telefonul pentru{" "}
+            <span className="bg-brand-gradient bg-clip-text text-transparent">
+              orele de birou
+            </span>
           </h1>
           <p className="max-w-2xl text-lg text-slate-600">
             Studenții sună la un număr obișnuit, iar agentul programează,
@@ -67,7 +76,7 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 font-medium text-white shadow-lift transition hover:bg-brand-dark"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-gradient px-6 py-3 font-medium text-white shadow-glow transition hover:opacity-90"
             >
               <CalendarIcon className="h-5 w-5" />
               Panoul profesorului
@@ -86,7 +95,7 @@ export default function Home() {
               key={title}
               className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card transition hover:shadow-lift"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-light text-brand">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-gradient text-white shadow-glow">
                 <Icon className="h-5 w-5" />
               </div>
               <h3 className="mt-4 font-semibold text-slate-900">{title}</h3>

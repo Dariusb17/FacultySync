@@ -193,7 +193,7 @@ export default function CalendarPage() {
                     <span
                       className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
                         isToday
-                          ? "bg-brand text-white"
+                          ? "bg-brand-gradient text-white"
                           : cell.inMonth
                           ? "text-slate-700"
                           : "text-slate-300"

@@ -119,7 +119,7 @@ export default function FaqPage() {
                 <button
                   onClick={() => save(e)}
                   disabled={!dirty || busy}
-                  className="rounded-lg bg-brand px-3.5 py-2 text-xs font-medium text-white transition hover:bg-brand-dark disabled:opacity-40"
+                  className="rounded-lg bg-brand-gradient px-3.5 py-2 text-xs font-medium text-white shadow-glow transition hover:opacity-90 disabled:opacity-40"
                 >
                   Salvează
                 </button>
@@ -165,7 +165,7 @@ export default function FaqPage() {
         <button
           type="submit"
           disabled={busy}
-          className="self-start rounded-lg bg-brand px-4 py-2 text-xs font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
+          className="self-start rounded-lg bg-brand-gradient px-4 py-2 text-xs font-medium text-white shadow-glow transition hover:opacity-90 disabled:opacity-50"
         >
           Adaugă întrebarea
         </button>

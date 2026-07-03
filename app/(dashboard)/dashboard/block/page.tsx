@@ -106,7 +106,7 @@ export default function BlockSlotsPage() {
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-card transition hover:bg-brand-dark disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-lg bg-brand-gradient px-4 py-2.5 text-sm font-medium text-white shadow-glow transition hover:opacity-90 disabled:opacity-60"
           >
             <BanIcon className="h-4 w-4" />
             {loading ? "Se blochează…" : "Blochează intervalul"}
