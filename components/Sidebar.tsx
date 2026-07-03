@@ -46,7 +46,7 @@ export default function Sidebar({
           <SparkIcon className="h-[18px] w-[18px]" />
         </div>
         <span className="text-[15px] font-semibold tracking-tight text-slate-900">
-          FacultySync
+          FacultyVoice
         </span>
       </div>
 

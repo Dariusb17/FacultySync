@@ -39,7 +39,7 @@ export default function Home() {
               <SparkIcon className="h-5 w-5" />
             </div>
             <span className="font-bold tracking-tight text-brand-ink">
-              FacultySync
+              FacultyVoice
             </span>
           </div>
           <Link

@@ -48,7 +48,7 @@ function LoginForm() {
             <SparkIcon className="h-6 w-6" />
           </div>
           <h1 className="text-xl font-bold tracking-tight text-brand-ink">
-            FacultySync
+            FacultyVoice
           </h1>
           <p className="text-sm text-slate-500">Panoul profesorului</p>
         </div>

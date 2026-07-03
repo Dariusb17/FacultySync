@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FacultySync — Voice Agent for University Offices",
+  title: "FacultyVoice — Voice Agent for University Offices",
   description:
     "Multi-tenant Vapi voice agent that lets students book office-hours slots by phone.",
 };
