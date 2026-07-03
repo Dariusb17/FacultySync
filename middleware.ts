@@ -63,6 +63,9 @@ export async function middleware(req: NextRequest) {
 
   if (isPublic(pathname)) return NextResponse.next();
 
+  // TEMPORARY design/demo mode: skip the auth gate entirely.
+  if (process.env.DASHBOARD_PUBLIC === "true") return NextResponse.next();
+
   // Auth gate for everything else (dashboard, admin, dashboard APIs).
   // Fail safe: without Supabase env we can't authenticate — send to login
   // rather than throwing a 500.

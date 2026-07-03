@@ -30,3 +30,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 /Pictures
+
+# local design-iteration tooling
+_*.mjs

@@ -35,10 +35,20 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(6px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        wave: {
+          "0%, 100%": { transform: "scaleY(0.28)" },
+          "50%": { transform: "scaleY(1)" },
+        },
+        "expand": {
+          "0%": { opacity: "0", transform: "translateY(-4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "pulse-dot": "pulse-dot 1.8s ease-in-out infinite",
         "fade-up": "fade-up 0.4s ease-out both",
+        wave: "wave 1.1s ease-in-out infinite",
+        expand: "expand 0.18s ease-out both",
       },
     },
   },

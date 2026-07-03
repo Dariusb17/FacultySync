@@ -11,6 +11,22 @@ import type { StaffProfile } from "./types";
  */
 export const getAuthContext = cache(
   async (): Promise<{ userId: string; email: string | null; profile: StaffProfile } | null> => {
+    // TEMPORARY design/demo mode: when DASHBOARD_PUBLIC=true, skip auth and act
+    // as the default office's owner. Remove the env var to re-enable login.
+    if (process.env.DASHBOARD_PUBLIC === "true" && process.env.DEFAULT_OFFICE_ID) {
+      return {
+        userId: "demo",
+        email: null,
+        profile: {
+          id: "demo",
+          office_id: process.env.DEFAULT_OFFICE_ID,
+          full_name: "Demo",
+          role: "owner",
+          is_active: true,
+        },
+      };
+    }
+
     const supabase = createSupabaseServerClient();
 
     // Validate the JWT against the Supabase auth server (not getSession()).

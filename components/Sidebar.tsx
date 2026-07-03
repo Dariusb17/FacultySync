@@ -13,7 +13,7 @@ import {
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 const NAV = [
-  { href: "/dashboard", label: "Programări", icon: ListIcon },
+  { href: "/dashboard", label: "Dashboard", icon: ListIcon },
   { href: "/dashboard/calendar", label: "Calendar", icon: CalendarIcon },
   { href: "/dashboard/block", label: "Blocare intervale", icon: BanIcon },
   { href: "/dashboard/faq", label: "Întrebări frecvente", icon: HelpIcon },
