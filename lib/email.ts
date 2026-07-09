@@ -1,14 +1,15 @@
-import nodemailer from "nodemailer";
-
 /**
- * Transactional email via Gmail SMTP (same approach as ClinicSync/dental-saas).
+ * Transactional email via Brevo's HTTP API (no SMTP, no extra dependency).
  * Best-effort: no-ops if unconfigured, never throws into the caller.
  *
  * Env:
- *   GMAIL_USER          — the Gmail address that sends (also the "from")
- *   GMAIL_APP_PASSWORD  — a Gmail App Password (16 chars)
+ *   BREVO_API_KEY       — Brevo API key (Settings -> SMTP & API -> API Keys, xkeysib-…)
+ *   BREVO_SENDER_EMAIL  — a VERIFIED sender in Brevo (the "from" address)
+ *   BREVO_SENDER_NAME   — display name for the sender (optional)
  *   OFFICE_NOTIFY_EMAIL — where booking notifications go (the professor)
  */
+
+const BREVO_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 
 export type BookingEmailData = {
   professorName: string;
@@ -23,10 +24,10 @@ export type BookingEmailData = {
 export async function sendBookingNotification(
   data: BookingEmailData
 ): Promise<void> {
-  const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_APP_PASSWORD;
+  const apiKey = process.env.BREVO_API_KEY;
+  const sender = process.env.BREVO_SENDER_EMAIL;
   const to = process.env.OFFICE_NOTIFY_EMAIL;
-  if (!user || !pass || !to) return; // not configured -> no-op
+  if (!apiKey || !sender || !to) return; // not configured -> no-op
 
   const subject = `Programare nouă — ${data.studentName}`;
   const html = `
@@ -57,20 +58,28 @@ export async function sendBookingNotification(
     </div>`;
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // STARTTLS
-      auth: { user, pass },
+    const res = await fetch(BREVO_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "api-key": apiKey,
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({
+        sender: {
+          email: sender,
+          name: process.env.BREVO_SENDER_NAME || "FacultyVoice",
+        },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
     });
-    await transporter.sendMail({
-      from: `"FacultyVoice" <${user}>`,
-      to,
-      subject,
-      html,
-    });
+    if (!res.ok) {
+      console.error("[email] Brevo error:", res.status, await res.text());
+    }
   } catch (e) {
-    console.error("[email] Gmail send failed:", e);
+    console.error("[email] Brevo send failed:", e);
   }
 }
 
