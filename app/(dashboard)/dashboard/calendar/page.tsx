@@ -51,7 +51,7 @@ export default function CalendarPage() {
   const [selected, setSelected] = useState<string>(todayKey());
 
   useEffect(() => {
-    fetch("/api/bookings")
+    fetch("/api/bookings", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : { bookings: [] }))
       .then((d) => setBookings(d.bookings ?? []));
   }, []);

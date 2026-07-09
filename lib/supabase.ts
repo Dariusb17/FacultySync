@@ -15,4 +15,11 @@ const supabaseServiceRoleKey =
 
 export const adminSupabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
+  global: {
+    // Bypass Next.js's fetch Data Cache so reads are always fresh. Without this,
+    // Supabase queries with stable URLs (e.g. the bookings list) get cached and
+    // return stale data after a new booking is written.
+    fetch: (input: any, init?: any) =>
+      fetch(input, { ...init, cache: "no-store" }),
+  },
 });

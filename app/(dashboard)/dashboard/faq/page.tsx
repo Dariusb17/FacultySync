@@ -17,7 +17,7 @@ export default function FaqPage() {
   const [busy, setBusy] = useState(false);
 
   async function load() {
-    const res = await fetch("/api/faqs");
+    const res = await fetch("/api/faqs", { cache: "no-store" });
     if (res.ok) setFaqs((await res.json()).faqs);
   }
   useEffect(() => {

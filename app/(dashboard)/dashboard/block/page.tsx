@@ -20,7 +20,7 @@ export default function BlockSlotsPage() {
   const [loading, setLoading] = useState(false);
 
   async function load() {
-    const res = await fetch("/api/blocks");
+    const res = await fetch("/api/blocks", { cache: "no-store" });
     if (res.ok) setBlocks((await res.json()).blocks);
   }
   useEffect(() => {
