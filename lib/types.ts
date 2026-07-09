@@ -8,6 +8,7 @@ export type Office = {
   twilio_number: string | null;
   greeting: string | null;
   feedback_link: string | null;
+  notify_email: string | null;
   api_key: string | null;
   created_at: string;
 };

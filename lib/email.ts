@@ -19,6 +19,8 @@ export type BookingEmailData = {
   formattedTime: string;
   topic?: string | null;
   dashboardUrl?: string;
+  /** Recipient; falls back to OFFICE_NOTIFY_EMAIL when absent. */
+  to?: string | null;
 };
 
 export async function sendBookingNotification(
@@ -26,7 +28,7 @@ export async function sendBookingNotification(
 ): Promise<void> {
   const apiKey = process.env.BREVO_API_KEY;
   const sender = process.env.BREVO_SENDER_EMAIL;
-  const to = process.env.OFFICE_NOTIFY_EMAIL;
+  const to = data.to || process.env.OFFICE_NOTIFY_EMAIL;
   if (!apiKey || !sender || !to) return; // not configured -> no-op
 
   const subject = `Programare nouă — ${data.studentName}`;

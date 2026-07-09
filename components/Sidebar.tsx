@@ -8,6 +8,7 @@ import {
   CalendarIcon,
   BanIcon,
   HelpIcon,
+  SettingsIcon,
   LogoutIcon,
 } from "./icons";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
@@ -17,6 +18,7 @@ const NAV = [
   { href: "/dashboard/calendar", label: "Calendar", icon: CalendarIcon },
   { href: "/dashboard/block", label: "Blocare intervale", icon: BanIcon },
   { href: "/dashboard/faq", label: "Întrebări frecvente", icon: HelpIcon },
+  { href: "/dashboard/settings", label: "Setări", icon: SettingsIcon },
 ];
 
 export default function Sidebar({

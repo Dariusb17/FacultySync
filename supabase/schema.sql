@@ -18,6 +18,7 @@ create table if not exists public.offices (
   twilio_number text unique,           -- the number students call; resolves the tenant
   greeting      text,
   feedback_link text,
+  notify_email  text,                  -- where booking notification emails are sent
   api_key       text,                  -- legacy/back-compat shared secret (Vapi uses VAPI_WEBHOOK_SECRET)
   created_at    timestamptz not null default now()
 );

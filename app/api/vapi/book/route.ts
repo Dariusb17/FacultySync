@@ -129,6 +129,7 @@ export async function POST(req: NextRequest) {
     meetingType,
     formattedTime,
     topic,
+    to: (office as any).notify_email ?? null,
     dashboardUrl: baseUrl ? `${baseUrl}/dashboard` : undefined,
   }).catch(() => {});
 
