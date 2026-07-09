@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { initials, avatarColor, badgeColor } from "@/lib/ui";
 import { ChevronRightIcon } from "./icons";
 
@@ -42,6 +43,30 @@ function timeLabel(iso: string) {
 
 export default function BookingList({ bookings }: { bookings: BookingItem[] }) {
   const [open, setOpen] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function cancelBooking(b: BookingItem) {
+    if (
+      !window.confirm(
+        `Anulați programarea pentru ${b.student_name} (${timeLabel(
+          b.slot_time
+        )})? Intervalul va redeveni liber.`
+      )
+    )
+      return;
+    setCancelling(b.id);
+    try {
+      await fetch("/api/bookings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: b.id }),
+      });
+      router.refresh();
+    } finally {
+      setCancelling(null);
+    }
+  }
 
   const groups = new Map<string, BookingItem[]>();
   for (const b of bookings) {
@@ -114,6 +139,13 @@ export default function BookingList({ bookings }: { bookings: BookingItem[] }) {
                         />
                         <Detail label="Subiect" value={b.topic ?? "—"} />
                       </dl>
+                      <button
+                        onClick={() => cancelBooking(b)}
+                        disabled={cancelling === b.id}
+                        className="mt-3 rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-50"
+                      >
+                        {cancelling === b.id ? "Se anulează…" : "Anulează programarea"}
+                      </button>
                     </div>
                   )}
                 </div>
