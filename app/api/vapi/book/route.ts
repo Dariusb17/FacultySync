@@ -15,6 +15,7 @@ import {
   formatDateTimeRo,
   spokenProfessorName,
 } from "@/lib/format";
+import { sendBookingNotification } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -118,6 +119,18 @@ export async function POST(req: NextRequest) {
   }
 
   const formattedTime = formatDateTimeRo(slotStart);
+
+  // Notify the professor by email (best-effort; no-op if Brevo unconfigured).
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  sendBookingNotification({
+    professorName: office.professor_name,
+    studentName,
+    faculty,
+    meetingType,
+    formattedTime,
+    topic,
+    dashboardUrl: baseUrl ? `${baseUrl}/dashboard` : undefined,
+  }).catch(() => {});
 
   // Confirmation: office/professor name, student name, faculty, type, slot time.
   return vapiResult(
